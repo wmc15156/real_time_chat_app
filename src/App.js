@@ -33,7 +33,8 @@ function App() {
                 dispatch(clearUser())
                 history.push('/login');
             }
-        })
+        });
+        console.log(345);
     }, [])
     if(isLoading) {
         return <div>Loading...</div>

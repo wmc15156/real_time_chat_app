@@ -149,3 +149,20 @@ body {
   margin-top: 1rem;
 }
 
+.message-form-button {
+  width: 50%;
+  height: 60px;
+  background-color: #7A84EB;
+}
+
+.message-form-button:hover {
+  background-color: #636ee6;
+}
+
+.emoji {
+  color: black;
+}
+
+.container2 span:hover {
+  background-color: #868e96;
+}
