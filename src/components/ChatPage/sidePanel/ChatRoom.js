@@ -58,10 +58,7 @@ class ChatRoom extends Component {
                 if(DataSnapshot.numChildren() - lastTotal > 0) {
                     notifications[index].count = DataSnapshot.numChildren() - lastTotal;
                 }
-
             }
-
-
 
             notifications[index].total = DataSnapshot.numChildren();
         }
