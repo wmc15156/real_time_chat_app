@@ -29,7 +29,6 @@ class ChatRoom extends Component {
 
 
     componentDidMount() {
-        console.log('componentDidMount');
         this.addChatRoomsListener();
     }
 
@@ -38,14 +37,12 @@ class ChatRoom extends Component {
     }
 
     handleNotification = (chatRoomId, currentChatRoomId, notifications, DataSnapshot) => {
-        console.log(chatRoomId, currentChatRoomId, 'hrerererer');
         let index = notifications.findIndex(notification => {
             return notification.id === chatRoomId
         });
         let lastTotal = 0;
 
         if(index === -1) {
-            console.log('eeeee', DataSnapshot.numChildren());
             notifications.push({
                 id: chatRoomId,
                 total: DataSnapshot.numChildren(),
@@ -54,7 +51,6 @@ class ChatRoom extends Component {
             });
         } else {
             //
-            console.log('cccccc', DataSnapshot.numChildren(), index);
             console.log(chatRoomId, currentChatRoomId);
             if(chatRoomId !== currentChatRoomId) {
                 lastTotal = notifications[index].lastKnownTotal;
@@ -165,7 +161,6 @@ class ChatRoom extends Component {
     }
 
     setCurrentChatRoom = (room) => {
-        console.log('click');
         this.props.dispatch(setPrivateChatRoom(false))
         this.props.dispatch(setCurrentChatRoom(room));
         this.setState({ activeChatRoomId: room.id })
@@ -180,7 +175,6 @@ class ChatRoom extends Component {
                 count = notification.count;
             }
         });
-        console.log('tlfgod');
         if(count > 0) return count
 
     }
