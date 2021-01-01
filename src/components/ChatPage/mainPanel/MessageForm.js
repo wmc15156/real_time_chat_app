@@ -6,7 +6,6 @@ import {GrEmoji} from "react-icons/all";
 import mime from 'mime-types';
 
 import firebase from '../../../firebase';
-import chatRoom from "../../../redux/reducer/chatRoom";
 import {useSelector} from "react-redux";
 
 
@@ -20,6 +19,7 @@ const MessageForm = () => {
 
     const chatRoom = useSelector(state => state.chatRoom);
     const user = useSelector(state => state.user.customerUser);
+    const privateChatRoomState = useSelector(state => state.chatRoom && state.chatRoom.privateChatRoom);
     const inputOpenImageRef = useRef();
     const firebaseStorageRef = firebase.storage().ref();
 
@@ -28,16 +28,6 @@ const MessageForm = () => {
 
     const handleChange = e => {
         setText(e.target.value)
-    }
-
-    const addEmoji = e => {
-        let sym = e.unified.split('-')
-        let codesArray = []
-        sym.forEach(el => codesArray.push('0x' + el))
-        let emoji = String.fromCodePoint(...codesArray)
-
-        setText(text + emoji)
-
     }
 
     const createMessage = (fileUrl=null) => {
@@ -70,6 +60,7 @@ const MessageForm = () => {
         // request database
 
         try {
+            console.log(chatRoom.currentRoom.id, 'current');
             await messageRef.child(chatRoom.currentRoom.id).push().set(
                 createMessage()
             )
@@ -89,14 +80,21 @@ const MessageForm = () => {
         inputOpenImageRef.current.click();
     }
 
+    const getFilePath = () => {
+        console.log(privateChatRoomState)
+        if(privateChatRoomState) {
+            return `messages/private/${chatRoom.currentRoom.id}`
+        }
+        return `messages/public`;
+    }
+
     const handleImageUpload = (e) => {
         const uploadFile = e.target.files[0];
         if(!uploadFile) return;
-        const filePath = `messages/public/${uploadFile.name}`;
+        const filePath = `${getFilePath()}/${uploadFile.name}`;
         const metaData = { contentType: mime.lookup(uploadFile.name)}
-
+        setLoading(true);
         try {
-
             let uploadTask = firebaseStorageRef.child(filePath).put(uploadFile);
 
             uploadTask.on('state_change', uploadTaskSnapShot => {
@@ -105,9 +103,21 @@ const MessageForm = () => {
                     (uploadTaskSnapShot.bytesTransferred / uploadTaskSnapShot.totalBytes) * 100
                 );
                 console.log(percentage);
-
                 setUploadPercentage(percentage);
-            });
+            },
+                (err) => {
+                    console.error(err);
+                    setLoading(false);
+                }, () => {
+                // storage에 저장 된 후 저장된 url get
+                    uploadTask.snapshot.ref.getDownloadURL()
+                        .then(downloadURL => {
+                            console.log(chatRoom.currentRoom.id, 'test')
+                            messageRef.child(chatRoom.currentRoom.id).push().set(createMessage(downloadURL));
+                            setLoading(false);
+                        })
+                }
+             );
 
 
         } catch(err) {

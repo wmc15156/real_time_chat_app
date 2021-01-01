@@ -47,7 +47,6 @@ const UserPanel = () => {
             firebase.database().ref('users').child(user.uid).update({ image: downloadURL });
 
 
-            console.log(downloadURL, "down");
         } catch(err) {
             console.log(err);
         }

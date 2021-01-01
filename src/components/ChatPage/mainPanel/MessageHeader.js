@@ -2,9 +2,12 @@ import React from 'react';
 import {Accordion, Card, Col, Container, FormControl, Image, InputGroup, Row,  } from "react-bootstrap";
 import Button from 'react-bootstrap/Button'
 
-import {AiOutlineSearch, FaLock} from "react-icons/all";
+import {AiOutlineSearch, FaLock, FaLockOpen} from "react-icons/all";
+import {useSelector} from "react-redux";
 
-const MessageHeader = () => {
+const MessageHeader = ({ onChangeHandler,value }) => {
+    const chatRoomName = useSelector(state => state.chatRoom.currentRoom && state.chatRoom.currentRoom.name);
+    const privateStatus = useSelector(state => state.chatRoom.privateChatRoom);
     return (
         <div style={{
             width: '100%',
@@ -16,7 +19,13 @@ const MessageHeader = () => {
         }}>
             <Container >
                 <Row>
-                    <Col><h2><FaLock />ChatRoomName</h2></Col>
+                    <Col>
+                        <h2>
+
+                            {privateStatus ? <FaLock /> : <FaLockOpen />}
+                            &nbsp; {chatRoomName && chatRoomName}
+                        </h2>
+                    </Col>
                     <Col>
                         <div>
                             <InputGroup style={{ width: '100%', paddingTop: '8px'}} className="mb-3">
@@ -27,6 +36,8 @@ const MessageHeader = () => {
                                     placeholder="Username"
                                     aria-label="Username"
                                     aria-describedby="basic-addon1"
+                                    value={value}
+                                    onChange={onChangeHandler}
                                 />
                             </InputGroup>
                         </div>

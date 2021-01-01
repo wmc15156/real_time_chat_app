@@ -4,7 +4,6 @@ import moment from 'moment';
 
 const Message = ({ message, user }) => {
 
-    console.log(message,"---- " ,message.user.name, "Message component")
     const timeFromNow = (timeStamp) => moment(timeStamp).fromNow();
 
     const isImage = (message) => {
@@ -40,7 +39,7 @@ const Message = ({ message, user }) => {
                     <h6 style={{ display: 'inline-block', fontWeight: 'bold' }}>{message.user.name}</h6>
                     <span style={{ color: 'gray', fontSize: '15px', marginLeft: '15px' }}>{timeFromNow(message.timeStamp)}</span>
                         {isImage(message) ?
-                            <img style={{ maxWidth: '300px', borderRadius:'14px' }} src={message.image} alt="이미지" />
+                            <img style={{ maxWidth: '300px', borderRadius:'14px', display: 'block' }} src={message.image} alt="이미지" />
                             : <p> {message.content} </p>
                         }
                 </Media.Body>

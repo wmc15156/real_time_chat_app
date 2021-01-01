@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { FaRegSmile, FaPlus } from 'react-icons/fa';
-import {Button, Form, Modal} from "react-bootstrap";
-import { connect }from 'react-redux';
+import {Badge, Button, Form, Modal} from "react-bootstrap";
+import { connect } from 'react-redux';
+import styled from 'styled-components';
+
 import firebase from '../../../firebase';
-import {setCurrentChatRoom} from "../../../redux/actions/chatRoom_action";
+import {setCurrentChatRoom, setPrivateChatRoom} from "../../../redux/actions/chatRoom_action";
 
 
+const StyledBadge = styled(Badge)`
+  margin-left: 10px;
+`;
 
 
 class ChatRoom extends Component {
@@ -14,14 +19,17 @@ class ChatRoom extends Component {
         name: "",
         desc: "",
         chatRoomsRef: firebase.database().ref('chatRooms'),
+        messagesRef: firebase.database().ref('message'),
         chatRooms: [],
         firstChatRoom: '', // 새로고침시 선택될 chatting방
         firstLoad: true,
         activeChatRoomId: "",
+        notifications: [],
     };
 
 
     componentDidMount() {
+        console.log('componentDidMount');
         this.addChatRoomsListener();
     }
 
@@ -29,24 +37,75 @@ class ChatRoom extends Component {
         this.state.chatRoomsRef.off();
     }
 
+    handleNotification = (chatRoomId, currentChatRoomId, notifications, DataSnapshot) => {
+        console.log(chatRoomId, currentChatRoomId, 'hrerererer');
+        let index = notifications.findIndex(notification => {
+            return notification.id === chatRoomId
+        });
+        let lastTotal = 0;
+
+        if(index === -1) {
+            console.log('eeeee', DataSnapshot.numChildren());
+            notifications.push({
+                id: chatRoomId,
+                total: DataSnapshot.numChildren(),
+                lastKnownTotal: DataSnapshot.numChildren(),
+                count: 0,
+            });
+        } else {
+            //
+            console.log('cccccc', DataSnapshot.numChildren(), index);
+            console.log(chatRoomId, currentChatRoomId);
+            if(chatRoomId !== currentChatRoomId) {
+                lastTotal = notifications[index].lastKnownTotal;
+
+                if(DataSnapshot.numChildren() - lastTotal > 0) {
+                    notifications[index].count = DataSnapshot.numChildren() - lastTotal;
+                }
+
+            }
+
+
+
+            notifications[index].total = DataSnapshot.numChildren();
+        }
+
+        this.setState({notifications})
+
+    }
+
+    addNotificationListener = (chatRoomId) => {
+        this.state.messagesRef.child(chatRoomId).on('value', DataSnapshot => {
+            console.log('실행2222');
+            if(this.props.chatRoom) {
+                this.handleNotification(
+                    chatRoomId,
+                    this.props.chatRoom.id,
+                    this.state.notifications,
+                    DataSnapshot
+                )
+            }
+        })
+    }
+
     addChatRoomsListener = () => {
         let chatRoomLists = [];
         this.state.chatRoomsRef.on('child_added', (data) => {
+            console.log('실행')
             // 항목 목록을 검색하거나 항목 목록에 대한 추가를 수신 대기합니다.
             chatRoomLists.push(data.val());
 
             this.setState({
                 chatRooms: chatRoomLists,
             }, () => {
-                console.log(2, this.state.chatRooms.length, this.state.firstChatRoom);
                 if(this.state.firstLoad && this.state.chatRooms.length) {
-                    console.log(3)
                     this.props.dispatch(setCurrentChatRoom(this.state.chatRooms[0]));
                     this.setState({ activeChatRoomId: this.state.chatRooms[0].id })
                 }
                 this.setState({
                     firstLoad: false,
                 });
+                this.addNotificationListener(data.key)
             });
 
         });
@@ -106,25 +165,40 @@ class ChatRoom extends Component {
     }
 
     setCurrentChatRoom = (room) => {
+        console.log('click');
+        this.props.dispatch(setPrivateChatRoom(false))
         this.props.dispatch(setCurrentChatRoom(room));
         this.setState({ activeChatRoomId: room.id })
+
     }
+
+    getNotification = (room) => {
+        let count = 0;
+
+        this.state.notifications.forEach((notification) => {
+            if(notification.id === room.id) {
+                count = notification.count;
+            }
+        });
+        console.log('tlfgod');
+        if(count > 0) return count
+
+    }
+
     renderChatRooms = (rooms) => {
-        console.log(rooms, "here");
        return rooms.map(room =>
            <div
                onClick={() => {
-
                    this.setCurrentChatRoom(room)
                }}
                style={{ marginTop: '0.5rem', backgroundColor: room.id === this.state.activeChatRoomId && '#ffffff45'}}
                key={room.id}># &nbsp;&nbsp; {room.name}
+               <StyledBadge variant="danger">{this.getNotification(room)}</StyledBadge>{' '}
            </div>
        )
     }
 
     render() {
-        console.log(this.state.chatRooms, "array");
         return (
             <div >
                 <div style={{ display: 'flex', alignItems: 'center'}}>
@@ -176,6 +250,7 @@ class ChatRoom extends Component {
 const mapToStateProps = (state) => {
     return {
         user: state.user.customerUser,
+        chatRoom: state.chatRoom.currentRoom,
     }
 }
 

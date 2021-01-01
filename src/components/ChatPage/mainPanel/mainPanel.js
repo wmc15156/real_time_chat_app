@@ -13,25 +13,24 @@ class MainPanel extends Component {
         messagesRef: firebase.database().ref('message'),
         messages: [],
         messageLoading: true,
+        searchTerm: '',
+        searchResult: [],
+        searchLoading: false
     }
 
     componentDidMount() {
         // this.addMessagesListener();
         const currentRoom = this.props.chatRoom.currentRoom;
 
-        console.log('componentDidMount', this.props.chatRoom);
         if(currentRoom) {
-            console.log('start', currentRoom.id)
             this.addMessagesListener(currentRoom.id);
         }
 
     }
 
     addMessagesListener = (roomId) => {
-        console.log(333);
         let messagesArray = [];
         this.state.messagesRef.child(roomId).on('child_added', (snapShot) => {
-            console.log('add-child')
             messagesArray.push(snapShot.val());
             this.setState({
                 messages: messagesArray,
@@ -42,16 +41,38 @@ class MainPanel extends Component {
     }
 
     renderMessages = (messages) => {
-        console.log(messages, "message");
         return messages.map(message => <Message key={message.timeStamp} message={message} user={this.props.user}/>)
+    }
+
+    onChangeHandler = (e) => {
+        this.setState({
+            searchTerm: e.target.value,
+            searchLoading: true,
+        }, () => {
+            const chatMessage = [...this.state.messages];
+            const regex = new RegExp(this.state.searchTerm, 'gi');
+
+            const searchResults = chatMessage.reduce((acc, message) => {
+               if(message.content && (message.content.match(regex) || message.user.name.match(regex))) {
+                   acc.push(message);
+               }
+               return acc;
+            },[]);
+
+            this.setState({
+                searchResult: searchResults,
+                searchLoading: false,
+            });
+
+        })
     }
 
 
     render() {
-        const { messages } = this.state;
+        const { messages, searchResult } = this.state;
         return (
             <div>
-                <MessageHeader />
+                <MessageHeader onChangeHandler={this.onChangeHandler} value={this.state.searchTerm} />
 
                 <div style={{
                     width: '100%',
@@ -62,7 +83,7 @@ class MainPanel extends Component {
                     marginBottom: '1rem',
                     overflowY: 'auto',
                 }} >
-                    {this.renderMessages(messages)}
+                    {searchResult.length ? this.renderMessages(searchResult) : this.renderMessages(messages)}
                 </div>
                 <MessageForm />
             </div>
