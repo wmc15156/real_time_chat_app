@@ -11,7 +11,9 @@ const Message = ({ message, user }) => {
     }
 
     const isMe = () => {
-        return message.currentRoom.name === user.customerUser.displayName
+        if(user) {
+            return message.currentRoom.name === user.customerUser.displayName
+        }
     }
 
     return (

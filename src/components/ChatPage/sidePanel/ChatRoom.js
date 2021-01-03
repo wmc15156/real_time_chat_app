@@ -34,6 +34,9 @@ class ChatRoom extends Component {
 
     componentWillUnmount() {
         this.state.chatRoomsRef.off();
+        this.state.chatRooms.forEach(chatRoom => {
+            this.state.messagesRef.child(chatRoom.id).off();
+        });
     }
 
     handleNotification = (chatRoomId, currentChatRoomId, notifications, DataSnapshot) => {
@@ -84,7 +87,6 @@ class ChatRoom extends Component {
     addChatRoomsListener = () => {
         let chatRoomLists = [];
         this.state.chatRoomsRef.on('child_added', (data) => {
-            console.log('실행')
             // 항목 목록을 검색하거나 항목 목록에 대한 추가를 수신 대기합니다.
             chatRoomLists.push(data.val());
 
@@ -160,8 +162,28 @@ class ChatRoom extends Component {
     setCurrentChatRoom = (room) => {
         this.props.dispatch(setPrivateChatRoom(false))
         this.props.dispatch(setCurrentChatRoom(room));
-        this.setState({ activeChatRoomId: room.id })
+        this.setState({ activeChatRoomId: room.id }, () => {
+            this.clearNotification();
+        })
 
+    }
+
+    clearNotification = () => {
+        console.log('clear', this.state.notifications, this.props.chatRoom.id);
+        let index = this.state.notifications.findIndex(notification => {
+            return notification.id === this.props.chatRoom.id;
+        });
+
+        console.log(index,'222')
+
+        if(index !== -1) {
+            console.log('-1index')
+            let updateNotifications = [...this.state.notifications];
+            // 선택된 채팅방의 토탈정보를 lastKnownTotal에 업데이트  결론: lastKnownTotal === total => 0
+            updateNotifications[index].lastKnownTotal = this.state.notifications[index].total;
+            updateNotifications[index].count = 0;
+            this.setState({ notifications: updateNotifications})
+        }
     }
 
     getNotification = (room) => {
