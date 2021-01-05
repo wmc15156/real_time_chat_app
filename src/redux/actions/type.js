@@ -1,8 +1,11 @@
-export const SET_USER = 'SET_USER';
-export const CLEAR_USER = 'CLEAR_USER';
-export const UPDATE_URL = 'UPDATE_URL';
+export const SET_USER = "SET_USER";
+export const CLEAR_USER = "CLEAR_USER";
+export const UPDATE_URL = "UPDATE_URL";
 
 // chatRoom types
 
-export const SET_CURRENT_CHAT_ROOM = 'SET_CURRENT_CHAT_ROOM';
-export const SET_PRIVATE_CHAT_ROOM = 'SET_PRIVATE_CHAT_ROOM';
+export const SET_CURRENT_CHAT_ROOM = "SET_CURRENT_CHAT_ROOM";
+export const SET_PRIVATE_CHAT_ROOM = "SET_PRIVATE_CHAT_ROOM";
+export const SET_USERS_POSTS = "SET_USERS_POSTS";
+export const ADD_MESSAGES = "ADD_MESSAGES";
+export const CHANGE_MESSAGE_LOADING_STATUS = "CHANGE_MESSAGE_LOADING_STATUS";

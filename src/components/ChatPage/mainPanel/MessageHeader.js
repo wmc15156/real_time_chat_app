@@ -7,6 +7,7 @@ import {
   FormControl,
   Image,
   InputGroup,
+  Media,
   Row,
 } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
@@ -32,6 +33,7 @@ const MessageHeader = ({ onChangeHandler, value }) => {
   const userRef = firebase.database().ref("users");
   const user = useSelector((state) => state.user.customerUser);
   const privateStatus = useSelector((state) => state.chatRoom.privateChatRoom);
+  const userPost = useSelector((state) => state.chatRoom.userPosts);
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
@@ -48,9 +50,7 @@ const MessageHeader = ({ onChangeHandler, value }) => {
       .then((data) => {
         if (data.val() !== null) {
           const chatRoomsId = Object.keys(data.val());
-          console.log(chatRoomId, "chatRoomId");
           const isAlreadyFavorite = chatRoomsId.includes(chatRoomId);
-          console.log(isAlreadyFavorite, "isFavor");
           setIsFavorite(isAlreadyFavorite);
         }
       });
@@ -80,6 +80,31 @@ const MessageHeader = ({ onChangeHandler, value }) => {
       });
       setIsFavorite((prev) => !prev);
     }
+  };
+
+  const renderUserPosts = (userPost) => {
+    return Object.entries(userPost)
+      .sort((prev, next) => {
+        return next[1].count - prev[1].count;
+      })
+      .map(([key, value], i) => {
+        return (
+          <Media key={i}>
+            <img
+              style={{ borderRadius: "50%" }}
+              width={48}
+              height={48}
+              className="mr-3"
+              src={value.image}
+              alt={value.image}
+            />
+            <Media.Body>
+              <h6>{key}</h6>
+              <p>{value.count}개</p>
+            </Media.Body>
+          </Media>
+        );
+      });
   };
 
   return (
@@ -132,11 +157,19 @@ const MessageHeader = ({ onChangeHandler, value }) => {
             </div>
           </Col>
         </Row>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <p>
-            <Image src="" /> &nbsp; user name
-          </p>
-        </div>
+        {!privateStatus && (
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <p>
+              <Image
+                roundedCircle
+                src={chatRoom && chatRoom.createdBy.image}
+                alt={chatRoom && chatRoom.createdBy.image}
+                style={{ width: "30px", height: "30px" }}
+              />{" "}
+              &nbsp; {chatRoom && chatRoom.createdBy.name}
+            </p>
+          </div>
+        )}
 
         <Row>
           <Col>
@@ -144,11 +177,11 @@ const MessageHeader = ({ onChangeHandler, value }) => {
               <Card>
                 <Card.Header style={{ padding: "0 1rem " }}>
                   <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                    Click me!
+                    Description
                   </Accordion.Toggle>
                 </Card.Header>
                 <Accordion.Collapse eventKey="0">
-                  <Card.Body>Hello! I'm the body</Card.Body>
+                  <Card.Body>{chatRoom && chatRoomName}</Card.Body>
                 </Accordion.Collapse>
               </Card>
             </Accordion>
@@ -159,11 +192,11 @@ const MessageHeader = ({ onChangeHandler, value }) => {
               <Card>
                 <Card.Header style={{ padding: "0 1rem " }}>
                   <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                    Click me!
+                    userPosts
                   </Accordion.Toggle>
                 </Card.Header>
                 <Accordion.Collapse eventKey="0">
-                  <Card.Body>Hello! I'm the body</Card.Body>
+                  <Card.Body>{userPost && renderUserPosts(userPost)}</Card.Body>
                 </Accordion.Collapse>
               </Card>
             </Accordion>
