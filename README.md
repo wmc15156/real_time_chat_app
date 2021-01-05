@@ -2,6 +2,8 @@
 
 # Back: firebase
 
+# UI
+- ReactBootstrap, styled-components, react-icons
 
 ## 버그수정
 
