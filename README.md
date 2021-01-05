@@ -1,11 +1,16 @@
-# Front : React, Redux(상태관리)
+# Front 
+- React 
+- Redux(상태관리)
 
-# Back: firebase
+# Back 
+- firebase
 
 # UI
-- ReactBootstrap, styled-components, react-icons
+- ReactBootstrap, 
+- styled-components
+- react-icons
 
-## 버그수정
+## 버그수정 및 추가기능
 
 - typing 에러
 - loading
