@@ -9,9 +9,28 @@ import {
   setCurrentChatRoom,
   setPrivateChatRoom,
 } from "../../../redux/actions/chatRoom_action";
+import { AiFillDelete, AiOutlineDelete } from "react-icons/all";
 
 const StyledBadge = styled(Badge)`
   margin-left: 10px;
+`;
+
+const StyledDeleteIcon = styled(AiOutlineDelete)`
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+  &:hover {
+    background-color: #748ffc;
+  }
+`;
+
+const Test = styled(AiFillDelete)`
+  color: red;
+`;
+
+const StyledChatRoom = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 class ChatRoom extends Component {
@@ -37,7 +56,26 @@ class ChatRoom extends Component {
     this.state.chatRooms.forEach((chatRoom) => {
       this.state.messagesRef.child(chatRoom.id).off();
     });
+
+    this.state.chatRooms.forEach((chatRoom) => {
+      this.state.chatRoomsRef.child(chatRoom.id).off();
+    });
   }
+
+  removeChatRoom = (room) => () => {
+    console.log(room, "ROOM", this.state.chatRooms);
+    const { chatRoomsRef, chatRooms } = this.state;
+
+    chatRoomsRef.child(room.id).remove();
+
+    const filterChatRoom = chatRooms.filter(
+      (chatRoom) => room.id !== chatRoom.id
+    );
+
+    this.setState({
+      chatRooms: filterChatRoom,
+    });
+  };
 
   handleNotification = (
     chatRoomId,
@@ -199,24 +237,30 @@ class ChatRoom extends Component {
   };
 
   renderChatRooms = (rooms) => {
-    return rooms.map((room) => (
-      <div
-        onClick={() => {
-          this.setCurrentChatRoom(room);
-        }}
-        style={{
-          cursor: "pointer",
-          marginTop: "0.5rem",
-          backgroundColor:
-            room.id === this.state.activeChatRoomId && "#ffffff45",
-        }}
-        key={room.id}
-      >
-        # &nbsp;&nbsp; {room.name}
-        <StyledBadge variant="danger">
-          {this.getNotification(room)}
-        </StyledBadge>{" "}
-      </div>
+    return rooms.map((room, i) => (
+      <StyledChatRoom key={i} style={{ display: "flex" }}>
+        <div
+          onClick={() => {
+            this.setCurrentChatRoom(room);
+          }}
+          style={{
+            cursor: "pointer",
+            marginTop: "0.5rem",
+            width: "100%",
+            backgroundColor:
+              room.id === this.state.activeChatRoomId && "#ffffff45",
+          }}
+          key={i}
+        >
+          # &nbsp;&nbsp; {room.name}
+          <StyledBadge variant="danger">
+            {this.getNotification(room)}
+          </StyledBadge>{" "}
+        </div>
+        <span key={room.id} style={{ position: "relative", top: "3px" }}>
+          <StyledDeleteIcon onClick={this.removeChatRoom(room)} />
+        </span>
+      </StyledChatRoom>
     ));
   };
 

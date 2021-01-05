@@ -54,6 +54,7 @@ class Favorited extends Component {
       .child(userId)
       .child("favorite")
       .on("child_removed", (DatasnapShot) => {
+        console.log("remove");
         const chatRoomToRemove = {
           id: DatasnapShot.key,
           ...DatasnapShot.val(),
