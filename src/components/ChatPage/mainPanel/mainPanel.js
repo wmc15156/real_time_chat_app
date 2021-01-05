@@ -34,6 +34,14 @@ class MainPanel extends Component {
       this.addMessagesListener(currentRoom.id);
       this.addTypingListener(currentRoom.id);
     }
+
+    setTimeout(() => {
+      if (this.state.messages.length === 0) {
+        this.setState({
+          messageLoading: false,
+        });
+      }
+    }, 1000);
   }
 
   componentDidUpdate = () => {
@@ -196,7 +204,6 @@ class MainPanel extends Component {
           {/*    return <Skeleton key={i} />;*/}
           {/*  }),*/}
           {/*]}*/}
-          <Skeleton />
           <Skeleton />
           <Skeleton />
           <Skeleton />

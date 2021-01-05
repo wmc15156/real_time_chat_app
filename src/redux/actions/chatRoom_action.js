@@ -1,6 +1,7 @@
 import {
   ADD_MESSAGES,
   CHANGE_MESSAGE_LOADING_STATUS,
+  REMOVE_CHAT_ROOM,
   SET_CURRENT_CHAT_ROOM,
   SET_PRIVATE_CHAT_ROOM,
   SET_USERS_POSTS,
@@ -37,5 +38,12 @@ export const addMessage = (payload) => {
 export const changeMessageLoading = () => {
   return {
     type: CHANGE_MESSAGE_LOADING_STATUS,
+  };
+};
+
+export const removeChatRoom = (room) => {
+  return {
+    type: REMOVE_CHAT_ROOM,
+    payload: room,
   };
 };

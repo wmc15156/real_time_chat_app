@@ -112,7 +112,7 @@ class DirectMessages extends Component {
     return (
       <div>
         <IconParentBoxStyled>
-          <SmileIcon /> DirectMessages(1)
+          <SmileIcon /> DirectMessages({users ? users.length : 0})
         </IconParentBoxStyled>
 
         <DirectMessageLists>

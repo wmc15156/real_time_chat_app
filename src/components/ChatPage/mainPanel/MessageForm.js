@@ -160,6 +160,7 @@ const MessageForm = () => {
             onChange={handleChange}
             as="textarea"
             rows={3}
+            placeholder="ctrl+enter키를 눌러 전송 할 수 있습니다."
           />
         </Form.Group>
       </Form>
